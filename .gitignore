@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.ssr/
+.shots/
+*.local
+
+# 本地工作记忆（AI 协作笔记），不随仓库分发
+.workbuddy/

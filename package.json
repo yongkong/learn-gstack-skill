@@ -1,0 +1,24 @@
+{
+  "name": "pstack-study",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "pstack 学习站：以 React 实现，用于长期复习 pstack 的工程原则与 playbook",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "smoke": "vite build --ssr src/entry-server.tsx --outDir .ssr --emptyOutDir && node scripts/smoke.mjs"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}

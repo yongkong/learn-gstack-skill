@@ -1,0 +1,383 @@
+export type PrincipleGroup = 'core' | 'architecture' | 'verification' | 'delegation' | 'meta';
+
+export const GROUP_META: Record<PrincipleGroup, { zh: string; en: string; blurb: string }> = {
+  core: {
+    zh: '核心',
+    en: 'core',
+    blurb: '决定"写多少"和"往哪写"的判断力，是所有其他原则的上游。',
+  },
+  architecture: {
+    zh: '架构',
+    en: 'architecture',
+    blurb: '让代码在结构上不可能变坏：类型、边界、领域模型。',
+  },
+  verification: {
+    zh: '验证',
+    en: 'verification',
+    blurb: '如何证明它真的有效——用真实工件，而不是"编译通过了"。',
+  },
+  delegation: {
+    zh: '委托',
+    en: 'delegation',
+    blurb: '把工作交给 agent 时，人和上下文怎么不被拖垮。',
+  },
+  meta: {
+    zh: '元',
+    en: 'meta',
+    blurb: '把一次经验变成永久约束。',
+  },
+};
+
+export interface Principle {
+  id: string;
+  en: string;
+  zh: string;
+  group: PrincipleGroup;
+  /** 原文规则 */
+  rule: string;
+  /** 中文释义 */
+  zhRule: string;
+  /** 什么时候该想起它 */
+  trigger: string;
+  /** 落地动作 */
+  howTo: string[];
+}
+
+export const PRINCIPLES: Principle[] = [
+  {
+    id: 'laziness-protocol',
+    en: 'laziness protocol',
+    zh: '懒惰协议',
+    group: 'core',
+    rule: 'Bias toward deletion and the smallest change that solves the problem.',
+    zhRule: '偏向删除，偏向"解决问题的最小改动"。',
+    trigger: '任何一次改动的第一步，写第一行代码之前。',
+    howTo: [
+      '能删就删：这段代码、这个分支、这个文件，去掉后问题还在吗？',
+      '能复用就复用：现成的函数、类型、组件里，有没有已经做完这件事的？',
+      '最后才新增，且只写到"刚够用"，不为想象中的未来留接口。',
+    ],
+  },
+  {
+    id: 'foundational-thinking',
+    en: 'foundational thinking',
+    zh: '基础性思考',
+    group: 'core',
+    rule: 'Apply before writing logic: choosing core types and data structures, sequencing scaffold-vs-feature work, asking what concurrent actors share.',
+    zhRule: '在写逻辑之前，先把核心类型和数据结构定对；再决定脚手架与功能谁先谁后；再问并发各方共享了什么。',
+    trigger: '开始写业务逻辑前，尤其是你准备写第一个 if 的时候。',
+    howTo: [
+      '先把领域里的实体、状态、状态迁移写成类型，看它们能不能表达出"非法状态"（应表达不出）。',
+      '数据结构定对之后，业务代码往往变成"顺着结构写下来"，而不是一堆分支。',
+      '再问：谁跟谁共享可变状态？共享点就是将来出 bug 的地方。',
+    ],
+  },
+  {
+    id: 'redesign-from-first-principles',
+    en: 'redesign from first principles',
+    zh: '从第一性原理重设计',
+    group: 'core',
+    rule: 'Redesign as if the requirement had been a foundational assumption from day one, instead of bolting it on.',
+    zhRule: '假装这个需求从第一天就存在，重新设计一遍，而不是把它"焊"到现有代码上。',
+    trigger: '你发现自己在给一个老结构打补丁、加 flag、加适配层的时候。',
+    howTo: [
+      '写一句话：如果这个需求一开始就在，数据长什么样？',
+      '按那个样子重画一遍结构，再对比现实，看差在哪一步。',
+      '差异通常集中在少数几个类型上——只改那几个，而不是到处加判断。',
+    ],
+  },
+  {
+    id: 'attack-the-premise',
+    en: 'attack the premise',
+    zh: '攻击前提',
+    group: 'core',
+    rule: 'Apply when two or more fixes that share one premise have failed the same gate. Write the premise down and test it directly before you write another fix that assumes it.',
+    zhRule: '当两个以上修法共享同一个前提、且都在同一道关卡上失败时，把那个前提写下来，直接验证它，而不是再写第三个基于它的修法。',
+    trigger: '同一个 bug 改了两版还没过，或者测试一直红在同一个断言上。',
+    howTo: [
+      '列出前两次修复各自"相信了什么"（前提）。',
+      '找出那个共同前提，用一个最小实验直接证伪或证实它。',
+      '前提错了就改前提；前提对，再谈修法。',
+    ],
+  },
+  {
+    id: 'subtract-before-you-add',
+    en: 'subtract before you add',
+    zh: '先减后加',
+    group: 'core',
+    rule: 'Remove dead weight, redundant validators, and stub references first, then build on the simpler base.',
+    trigger: '准备加功能、加依赖、加抽象层之前。',
+    zhRule: '先删掉死代码、重复的校验、悬空的引用，然后在更简单的基座上开工。',
+    howTo: [
+      '删之前先证明没人用（搜索调用点，而不是凭感觉）。',
+      '一次只删一类东西，每类删完跑一次验证。',
+      '减法做完再决定加法还需不需要——很多时候不需要了。',
+    ],
+  },
+  {
+    id: 'minimize-reader-load',
+    en: 'minimize reader load',
+    zh: '最小化读者负担',
+    group: 'core',
+    rule: 'Count layers between question and answer, and hidden state in the reader’s head; collapse one-caller wrappers and shrink mutable scope.',
+    zhRule: '数一数"从问题到答案"隔了几层，数一数读者脑子里要同时装多少隐藏状态；把只有一个调用方的包装层压平，把可变作用域收窄。',
+    trigger: '你写的这段代码，三个月后自己要读第二遍的时候。',
+    howTo: [
+      '一个函数只有一个调用方，通常说明该内联了。',
+      '把"必须先知道 A 才知道 B 在干什么"的依赖砍掉。',
+      '命名直接说结论，不说过过程。',
+    ],
+  },
+  {
+    id: 'outcome-oriented-execution',
+    en: 'outcome oriented execution',
+    zh: '结果导向执行',
+    group: 'core',
+    rule: 'Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don’t preserve smooth intermediate states with throwaway compatibility code.',
+    zhRule: '在有明确阶段边界的重构和迁移里，直奔目标架构；不要为了"中间状态平滑"而写用完就扔的兼容代码。',
+    trigger: '多阶段重构、把一个 API 换成另一个的时候。',
+    howTo: [
+      '先把目标状态写清楚，再切分阶段，每个阶段结束是一个可验证的快照。',
+      '禁止为过渡期加兼容层——那是债务，不是进度。',
+      '阶段之间允许"不完整但可验证"，不允许"能跑但方向模糊"。',
+    ],
+  },
+  {
+    id: 'experience-first',
+    en: 'experience first',
+    zh: '体验优先',
+    group: 'core',
+    rule: 'Choose user delight over implementation convenience; ship fewer polished features over more rough ones.',
+    zhRule: '在"实现省事"和"用户爽"之间选后者；宁可少发几个精致的，不发一堆毛糙的。',
+    trigger: '你在权衡"这样做实现更简单"的时候。',
+    howTo: [
+      '先描述用户在这一刻想干什么，再问当前实现是否挡路。',
+      '粗糙功能的成本不是开发成本，是用户信任成本。',
+      '砍功能比打磨十个半成品更能提升整体观感。',
+    ],
+  },
+  {
+    id: 'exhaust-the-design-space',
+    en: 'exhaust the design space',
+    zh: '穷尽设计空间',
+    group: 'core',
+    rule: 'Build 2-3 competing prototypes and compare side by side before committing.',
+    zhRule: '定方案之前，先做 2–3 个互相竞争的版本，摆在一起比。',
+    trigger: '方案有两条以上都说得通的路，谁也对不了谁的时候。',
+    howTo: [
+      '每个原型只为一个判断服务，做完就能回答一个问题。',
+      '原型是消耗品，明确写在纸上"这个会被扔掉"。',
+      '比较时用同一组输入、同一个标准，别各夸各的。',
+    ],
+  },
+  {
+    id: 'build-the-lever',
+    en: 'build the lever',
+    zh: '造杠杆',
+    group: 'core',
+    rule: 'Apply to any non-trivial work, not just bulk work: build the tool that does it or proves it (codemod, script, generator, or a skill your subagents follow) instead of working by hand. The tool is the artifact a reviewer can rerun.',
+    zhRule: '任何非平凡的工作，都不要用手工完成，而是造出"做这件事"或"证明这件事"的工具——codemod、脚本、生成器，或者一个 agent 能照着跑的 skill。工具是别人能重跑的产物。',
+    trigger: '同一件事你要做第二遍，或者要证明它做对了。',
+    howTo: [
+      '先写"如何证明"，再写"如何做"；证明脚本通常就是工具本身。',
+      '工具要能重跑、能失败、能输出差异。',
+      '交付时给工具，而不是给"我做完了"这句话。',
+    ],
+  },
+  {
+    id: 'model-the-domain',
+    en: 'model the domain',
+    zh: '领域建模',
+    group: 'architecture',
+    rule: 'Encode the domain in a structure instead of scattered conditionals.',
+    zhRule: '把领域编码进结构，而不是散落成一堆条件判断。',
+    trigger: '你写下第三个 if (type === ...) 的时候。',
+    howTo: [
+      '把 type 变成一个联合类型（discriminated union），让每个分支必须被处理。',
+      '状态机就写成状态机：状态 × 事件 → 结果。',
+      '新增一个变体时，如果编译器没有报错，说明结构没建好。',
+    ],
+  },
+  {
+    id: 'boundary-discipline',
+    en: 'boundary discipline',
+    zh: '边界纪律',
+    group: 'architecture',
+    rule: 'Concentrate guards at system boundaries (CLI, config, network, external APIs); trust internal types and keep business logic in pure functions.',
+    zhRule: '把防御集中在系统边界（命令行、配置、网络、外部 API）；内部信任类型，业务逻辑写成纯函数。',
+    trigger: '你想在业务代码里再补一个"防御性"判断的时候。',
+    howTo: [
+      '外部数据进系统时一次解析成内部类型，之后不再校验。',
+      '内部函数不做"参数可能为空"的兜底——那是把边界漏进来。',
+      '业务逻辑不依赖 I/O，纯函数才好测。',
+    ],
+  },
+  {
+    id: 'type-system-discipline',
+    en: 'type system discipline',
+    zh: '类型系统纪律',
+    group: 'architecture',
+    rule: 'Make illegal states unrepresentable, brand semantic primitives, parse external data at boundaries, exhaust variants, derive from authoritative schemas.',
+    zhRule: '让非法状态无法表达；给语义不同的同构原始值打标签（brand）；在边界解析外部数据；穷尽变体；从权威 schema 推导类型。',
+    trigger: '两个 string 会搞混、两个 boolean 会搞混、接口返回值会被猜的时候。',
+    howTo: [
+      '给 ID、金额、时间戳加 brand 类型，别让 userId 传给 orderId 还能编译通过。',
+      '用 never 做穷尽检查，新增变体立刻报错。',
+      '类型从 schema（zod / protobuf / DB 定义）推导，别手抄第二份。',
+    ],
+  },
+  {
+    id: 'make-operations-idempotent',
+    en: 'make operations idempotent',
+    zh: '操作幂等化',
+    group: 'architecture',
+    rule: 'Converge to the same end state regardless of partial prior runs.',
+    zhRule: '无论前面跑到哪一步中断，重跑都收敛到同一个终态。',
+    trigger: '写脚本、迁移、部署、批处理的时候。',
+    howTo: [
+      '每一步都问：跑第二遍会发生什么？',
+      '用"确保存在/确保等于"代替"创建/追加"。',
+      '中断点要能原地重来，而不是要求先手工回滚。',
+    ],
+  },
+  {
+    id: 'migrate-callers-then-delete-legacy-apis',
+    en: 'migrate callers, then delete legacy APIs',
+    zh: '先迁移调用者，再删旧 API',
+    group: 'architecture',
+    rule: 'Migrate callers and delete the old API in the same wave instead of preserving compatibility layers.',
+    zhRule: '在同一轮里把调用方迁完并把旧 API 删掉，而不是保留一层兼容。',
+    trigger: '你准备写 @deprecated 注释、或者"先留着，以后删"的时候。',
+    howTo: [
+      '列出所有调用点，一批迁完。',
+      '同一轮删旧实现，CI 作为安全网。',
+      '"以后删"几乎从不发生，所以不给自己这个选项。',
+    ],
+  },
+  {
+    id: 'separate-before-serializing-shared-state',
+    en: 'separate before serializing shared state',
+    zh: '共享状态先分离再序列化',
+    group: 'architecture',
+    rule: 'Eliminate the sharing first; serialize structurally only when one shared writer is a real invariant.',
+    zhRule: '先想办法消除共享；只有当"只能有一个写者"是真实不变量时，才用加锁/串行化解决。',
+    trigger: '你遇到并发写冲突，第一反应是加锁的时候。',
+    howTo: [
+      '先问：这两个写者真的需要同一份数据吗？拆开能不能各自持有？',
+      '能拆就拆，拆完冲突消失。',
+      '确实不能拆，再把"单一写者"建模成类型或结构上的约束，而不是散落的锁。',
+    ],
+  },
+  {
+    id: 'prove-it-works',
+    en: 'prove it works',
+    zh: '证明它有效',
+    group: 'verification',
+    rule: 'Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or "it compiles."',
+    zhRule: '在宣布完成之前，用真实工件验证：真的跑起来、真的读到那个值、真的看 diff。不接受代理指标、自我报告、"编译过了"。',
+    trigger: '你准备说"好了"的那一秒。',
+    howTo: [
+      '写下一句"怎么算成功"，越具体越好（哪个页面、哪个值、什么输出）。',
+      '用真实入口跑一遍，而不是只跑单元测试。',
+      '把证据贴出来：截图、输出、diff。',
+    ],
+  },
+  {
+    id: 'fix-root-causes',
+    en: 'fix root causes',
+    zh: '修根因而非症状',
+    group: 'verification',
+    rule: 'Trace each symptom back to the first place the system went wrong and fix it there. A guard is a fix only when the state it handles is legitimate.',
+    zhRule: '顺着症状回到系统第一次出错的那个点，在那里修。只有当被处理的状态是合理合法的状态时，加防御才算修。',
+    trigger: '你准备加 try/catch、加 null 检查、加兜底值的时候。',
+    howTo: [
+      '问"这个错误值是在哪里第一次产生的"，而不是"哪里会崩"。',
+      '如果那个状态本来不该存在，加防御只是把 bug 藏起来。',
+      '只有在状态合法时（真实业务可能发生），防御才是正解。',
+    ],
+  },
+  {
+    id: 'sequence-verifiable-units',
+    en: 'sequence verifiable units',
+    zh: '切成可验证单元',
+    group: 'verification',
+    rule: 'Apply to multi-step work and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer.',
+    zhRule: '把工作拆成"每一段都以一个可验证状态收尾"的小单元，逐个检查再往下走；提交顺序要让审阅者顺着看就能自证。',
+    trigger: '一个任务要做十几步、或者要提一串 commit 的时候。',
+    howTo: [
+      '每一步写清"做完怎么验证"，验证不了的步骤要再拆。',
+      '一个 commit 一个可验证单元，别把两件事混在一起。',
+      '顺序安排成：前面的 commit 是后面 commit 的前提。',
+    ],
+  },
+  {
+    id: 'test-behavior-not-implementation',
+    en: 'test behavior, not implementation',
+    zh: '测行为不测实现',
+    group: 'verification',
+    rule: 'Apply when you write, change, or keep a test. Assert what the code’s users can observe, so the test fails when that behavior breaks and keeps passing when only the internals change.',
+    zhRule: '断言"使用者能观察到的东西"：行为坏了测试要红，只改内部实现测试要绿。',
+    trigger: '写测试、改测试、或者犹豫"这个测试还有没有用"的时候。',
+    howTo: [
+      '从调用方视角写断言：输入什么，看到什么。',
+      '不要断言私有函数调用次数、内部状态字段。',
+      '重构时如果测试跟着改，说明测的是实现。',
+    ],
+  },
+  {
+    id: 'explain-the-number',
+    en: 'explain the number',
+    zh: '解释这个数字',
+    group: 'verification',
+    rule: 'Apply before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think.',
+    zhRule: '在相信、汇报、或依据一个测出来的数字行动之前，先找出是什么限制了它，并排除"它测的其实不是你以为的那件事"。',
+    trigger: '你要说"快了 10 倍"、"覆盖率 90%"、"延迟降到 200ms"的时候。',
+    howTo: [
+      '先找出瓶颈在哪：是被什么限制住的？',
+      '问：这个测量真的覆盖了端到端路径吗？还是只测了好测的那段？',
+      '重复跑、看方差，单次结果不算结论。',
+    ],
+  },
+  {
+    id: 'guard-the-context-window',
+    en: 'guard the context window',
+    zh: '守住上下文窗口',
+    group: 'delegation',
+    rule: 'Route bulk to subagents; keep summaries in the main thread, not raw payloads.',
+    zhRule: '把"量大"的活儿派给子 agent，主线程只留摘要，不塞原始数据。',
+    trigger: '你要把一大段日志、整个目录、几百行 diff 丢进对话的时候。',
+    howTo: [
+      '先想"我需要的是结论还是材料"，需要结论就派给子 agent 提炼。',
+      '主线程里只保留可决策的信息。',
+      '原始材料落盘，用路径引用，而不是贴进上下文。',
+    ],
+  },
+  {
+    id: 'never-block-on-the-human',
+    en: 'never block on the human',
+    zh: '不要阻塞在人身上',
+    group: 'delegation',
+    rule: 'Proceed, present the result, let the human course-correct after the fact; reserve confirmation for irreversible actions.',
+    zhRule: '先做、把结果摆出来，让人在事后纠偏；只有不可逆的动作才值得先确认。',
+    trigger: '你准备停下来问"要不要我继续"的时候。',
+    howTo: [
+      '可逆的事直接做，做完报告。',
+      '不可逆的事（删数据、发外部消息、部署）才先问。',
+      '把选择权留给人，但别把进度也交出去。',
+    ],
+  },
+  {
+    id: 'encode-lessons-in-structure',
+    en: 'encode lessons in structure',
+    zh: '把经验编码进结构',
+    group: 'meta',
+    rule: 'Encode the rule as a lint, metadata flag, runtime check, or script instead of more text.',
+    zhRule: '把规则变成 lint、元数据、运行时检查或脚本，而不是再写一段文档。',
+    trigger: '你第二次因为同一个原因犯同样的错，或者你准备写"注意事项"的时候。',
+    howTo: [
+      '问"有没有什么地方能自动拦住这件事"，而不是"怎么提醒自己"。',
+      '优先级：架构约束 > 类型 > lint > CI > 测试 > 文档。',
+      '文档放最后，因为它不执行。',
+    ],
+  },
+];
