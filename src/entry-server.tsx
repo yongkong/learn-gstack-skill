@@ -1,10 +1,13 @@
 import { renderToString } from 'react-dom/server';
 import App from './App';
 import { LessonPage } from './pages/LessonPage';
+import { VisualsPage } from './pages/VisualsPage';
 import { LESSONS } from './content/lessons';
 import { CURRICULUM, curriculumFor } from './content/curriculum';
 import { PRINCIPLES } from './content/principles';
 import { PLAYBOOK_BY_ID } from './content/playbooks';
+import { PAGES } from './content/pages';
+import { VISUALS } from './content/visuals';
 
 /** 只用于烟雾测试：证明整棵 React 树能无错渲染，且内容真的出现在输出里。 */
 export function render(): string {
@@ -15,8 +18,48 @@ export function renderLesson(id: string): string {
   return renderToString(<LessonPage id={id} />);
 }
 
+export function renderPage(id: string): string {
+  return renderToString(<VisualsPage id={id} />);
+}
+
 export function lessonIds(): string[] {
   return LESSONS.map((lesson) => lesson.id);
+}
+
+/**
+ * 图解页的自检：md 里引用的每个图解 id 都要存在，定义了的每个图解都要被用到，
+ * 指回的课程也必须存在——否则「第 N 课」那个链接会指向 404。
+ */
+export function visualAudit() {
+  const used = PAGES.flatMap((page) =>
+    page.blocks.flatMap((block) => (block.kind === 'visual' ? [block.id] : [])),
+  );
+  const defined = new Set(VISUALS.map((visual) => visual.id));
+  const lessonIds = new Set(LESSONS.map((lesson) => lesson.id));
+
+  return {
+    pages: PAGES.map((page) => ({
+      id: page.id,
+      title: page.title,
+      visuals: page.blocks.flatMap((block) => (block.kind === 'visual' ? [block.id] : [])),
+    })),
+    visuals: VISUALS.map((visual) => ({
+      id: visual.id,
+      title: visual.title,
+      kind: visual.kind,
+      lessonId: visual.lessonId ?? '',
+    })),
+    missing: used.filter((id) => !defined.has(id)),
+    unused: [...defined].filter((id) => !used.includes(id)),
+    badLesson: VISUALS.filter((visual) => visual.lessonId && !lessonIds.has(visual.lessonId)).map(
+      (visual) => visual.id,
+    ),
+    /** 每种 visual kind 各用了几次，用来确认形式不是抄同一个模板 */
+    kinds: VISUALS.reduce<Record<string, number>>((acc, visual) => {
+      acc[visual.kind] = (acc[visual.kind] ?? 0) + 1;
+      return acc;
+    }, {}),
+  };
 }
 
 /** 每节课的元信息，供烟雾测试逐条断言。 */

@@ -2,6 +2,7 @@ import { Link } from '../lib/router';
 import { PRINCIPLES } from '../content/principles';
 import { PLAYBOOKS } from '../content/playbooks';
 import { CURRICULUM, PUBLISHED_COUNT } from '../content/curriculum';
+import { VISUALS } from '../content/visuals';
 import { Curriculum } from '../components/Curriculum';
 
 export function Home() {
@@ -38,6 +39,11 @@ export function Home() {
 
       <h2>速查</h2>
       <div className="entry-grid">
+        <Link to="/visuals" className="entry">
+          <span className="entry-kicker">{VISUALS.length} 张 · 一图一个判断</span>
+          <span className="entry-title">图解</span>
+          <span className="entry-desc">判断用流程，改动用 diff，状态用网格，边界用分层，重跑用时序。读不懂某节课时先来这里找形状。</span>
+        </Link>
         <Link to="/principles" className="entry">
           <span className="entry-kicker">{PRINCIPLES.length} 条 · 可搜索</span>
           <span className="entry-title">原则速查</span>

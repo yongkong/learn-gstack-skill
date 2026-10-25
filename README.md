@@ -6,7 +6,7 @@
 
 备用地址：[pstack-study.app.workbuddy.host/?sharecode=BUJJTI3CNJ](https://pstack-study.app.workbuddy.host/?sharecode=BUJJTI3CNJ)（这个域有访问保护，必须带 `?sharecode`，只开域名会看到「链接不完整」）
 
-16 课 / 5 个阶段 / 48 道检索题，覆盖全部 24 条原则，不漏不重。课程是**纯 Markdown 文件**（`content/lessons/*.md`），站点是它们的渲染器。改内容不用碰任何 TS/JSX——md 既是网站的内容源，也是直接在 GitHub 上可读的讲义。
+16 课 / 5 个阶段 / 48 道检索题，覆盖全部 24 条原则，不漏不重；另有 5 张图解，用来把读不懂的判断先看出形状。课程是**纯 Markdown 文件**（`content/lessons/*.md`），站点是它们的渲染器。改内容不用碰任何 TS/JSX——md 既是网站的内容源，也是直接在 GitHub 上可读的讲义。
 
 ## 内容
 
@@ -33,6 +33,24 @@
 
 24 条原则一条不漏、一条不重复；这个声明由 `npm run smoke` 断言，不是文案。
 
+## 图解
+
+`/visuals` 页是给「某节课读不懂」准备的后门：五张图，每张指回它讲的那一课。
+
+做法借自 [humanlayer/skills 的 show-me](https://github.com/humanlayer/skills/tree/main/plugins/show-me)：**选能讲清这个判断的最小视图，形式跟着问题走**，不为了统一而套同一个模板。
+
+| 图的形状 | 用在哪 | 为什么是它 |
+|---|---|---|
+| gates | 有顺序的判断，命中即停 | Laziness Protocol 的关键是「顺序」，扁平列表会丢掉这层 |
+| diff | 同一需求的两版实现 | 差异在增减行，不在文字说明 |
+| grid | 状态空间的笛卡尔积 | 非法组合要能被看见，而不是被断言成「我们不会那样写」 |
+| layers | 校验散落 vs 收在门口 | 层数对比一眼可见，文字要写三段 |
+| timeline | 同一动作重复执行 | 幂等的定义就是「第二次之后还一样」 |
+
+加一张图要动两处：`src/content/visuals.ts` 里加数据，md 里写 `:::visual <id>`。图的数据是结构化的（不是 HTML 字符串），所以同一张图能被复用、能被 smoke 断言，也不会在 md 里写成没人看得懂的标记。
+
+`npm run smoke` 会核对：md 引用的 id 都存在、定义的图都被用到、每张图指回的课程存在、图真的渲染进了 DOM，以及**DOM 里每个类名在 `styles.css` 都有对应规则**——手写 CSS 里拼错类名不会报错，只会静默没有样式。
+
 ## 跑起来
 
 ```bash
@@ -44,7 +62,7 @@ npm run dev      # http://localhost:5273
 
 ```bash
 npm run build    # 类型检查 + 生产构建
-npm run smoke    # 逐课 SSR 渲染 + 覆盖一致性 + 双语完整性，共 114 项断言
+npm run smoke    # 逐课 SSR 渲染 + 覆盖一致性 + 双语完整性 + 图解完整性，共 133 项断言
 ```
 
 坏掉的 frontmatter 会让构建失败并指到具体文件（缺字段、`num` 与文件名不一致、题没有唯一正确答案等），不会悄悄进产物。
@@ -107,6 +125,7 @@ nextUp: "第 2 课：……（可选）"
 | principles | `:::principles` | 原则卡片，每行一个原则 id |
 | playbooks | `:::playbooks` | playbook 卡片，每行一个 id |
 | source | `:::source 标题` | primary source 卡片，需 `url:` 和 `why:` 两行 |
+| visual | `:::visual three-gates` | 图解卡片，id 对应 `src/content/visuals.ts` 里的定义（容器内必须为空） |
 
 测验用 GFM 任务列表表示选项，`[x]` 是正确答案，`>` 开头的是解释：
 
@@ -125,6 +144,7 @@ nextUp: "第 2 课：……（可选）"
 
 ```
 content/lessons/*.md   课程正文（唯一内容来源）
+content/pages/*.md     普通页面（图解等，不进路线图）
 build/
   md-lesson.ts         md → Lesson 解析器，构建期运行
   vite-plugin-lessons.ts  把 md 编译成模块，dev 下改 md 自动刷新
@@ -133,11 +153,13 @@ src/
     principles.ts      24 条原则：英文正式名 / 中文释义 / 触发时机 / 落地动作
     playbooks.ts       23 个 playbook，按任务形状分组
     phases.ts          5 个阶段
-    lessons.ts         glob 汇总所有 md
+    lessons.ts         glob 汇总所有课程 md
+    pages.ts           glob 汇总所有页面 md
     curriculum.ts      由 frontmatter 派生路线图，不手写
-    types.ts           Block 与 Lesson 的类型
+    visuals.ts         图解数据：五张图，各指回它讲的课
+    types.ts           Block / Lesson / Visual 的类型
   components/          渲染层，跨课程复用
-  pages/               首页 / 课程页 / 原则速查 / playbook 索引
+  pages/               首页 / 课程页 / 图解 / 原则速查 / playbook 索引
   lib/                 hash 路由与进度存储
 ```
 

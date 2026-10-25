@@ -2,6 +2,7 @@ import type { Block } from '../content/types';
 import { PLAYBOOK_BY_ID } from '../content/playbooks';
 import { PrincipleById } from './PrincipleCard';
 import { Quiz } from './Quiz';
+import { VisualById } from './Visuals';
 
 export function Blocks({ blocks, scope }: { blocks: Block[]; scope?: string }) {
   return (
@@ -67,6 +68,8 @@ function BlockView({ block, scope }: { block: Block; scope?: string }) {
       );
     case 'quiz':
       return <Quiz quiz={block} scope={scope} />;
+    case 'visual':
+      return <VisualById id={block.id} />;
     case 'source':
       return (
         <div className="source">

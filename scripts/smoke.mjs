@@ -1,4 +1,24 @@
-import { render, renderLesson, lessonStats, coverage, quizKeys } from '../.ssr/entry-server.js';
+import { readFileSync } from 'node:fs';
+import {
+  render,
+  renderLesson,
+  renderPage,
+  lessonStats,
+  coverage,
+  quizKeys,
+  visualAudit,
+} from '../.ssr/entry-server.js';
+
+const CSS = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf-8');
+
+/** DOM 里的类名必须在 styles.css 里有一条规则：拼错的类名不会报错，只会静默没有样式。 */
+function unstyledClasses(html) {
+  const used = new Set();
+  for (const match of html.matchAll(/class="([^"]+)"/g)) {
+    match[1].split(/\s+/).filter(Boolean).forEach((name) => used.add(name));
+  }
+  return [...used].filter((name) => !new RegExp(`\\.${name}[\\s,{:.]`).test(CSS));
+}
 
 /** React 会在相邻文本节点之间插注释，并把引号转义成实体，检查前先还原。 */
 const clean = (html) =>
@@ -67,6 +87,37 @@ assert('所有课都已发布', cov.unpublished.length === 0, cov.unpublished.jo
 const keys = quizKeys();
 assert('测验键跨课程唯一', new Set(keys).size === keys.length, `${keys.length} 题 / ${new Set(keys).size} 唯一`);
 assert('题量与课程数匹配', keys.length === stats.length * 3, `${keys.length} = ${stats.length} × 3`);
+
+// 图解页：id 必须能解析，指回的课必须存在，图必须真的渲染出来
+const viz = visualAudit();
+assert('图解页存在', viz.pages.length > 0, viz.pages.map((page) => page.id).join(','));
+assert('md 引用的图解都已定义', viz.missing.length === 0, viz.missing.join(',') || '无缺失');
+assert('定义的图解都被用到', viz.unused.length === 0, viz.unused.join(',') || '无死代码');
+assert('图解指向的课程都存在', viz.badLesson.length === 0, viz.badLesson.join(',') || '全部有效');
+assert(
+  '图解形式不止一种',
+  Object.keys(viz.kinds).length >= 4,
+  Object.entries(viz.kinds).map(([kind, n]) => `${kind}×${n}`).join(' '),
+);
+
+for (const page of viz.pages) {
+  const html = clean(renderPage(page.id));
+  assert(`页面 ${page.id} 标题`, html.includes(page.title), page.title);
+  assert(`页面 ${page.id} 无破损图解`, !html.includes('没有定义'), `${page.visuals.length} 张图`);
+  for (const id of page.visuals) {
+    const visual = viz.visuals.find((item) => item.id === id);
+    check(`页面 ${page.id} 图 ${id}`, html, visual.title);
+    if (visual.lessonId) {
+      // 图解卡片自带「第 N 课」回链，链不上就说明 lessonId 写错了
+      assert(`图 ${id} 有课程回链`, /第 \d{2} 课/.test(html), visual.lessonId);
+    }
+  }
+  const gaps = unstyledClasses(html);
+  assert(`页面 ${page.id} 类名都有样式`, gaps.length === 0, gaps.join(',') || '无未定义');
+}
+
+const homeGaps = unstyledClasses(clean(home));
+assert('首页类名都有样式', homeGaps.length === 0, homeGaps.join(',') || '无未定义');
 
 console.log(`\n${failed === 0 ? '全部通过' : `${failed} 项失败`}`);
 process.exit(failed === 0 ? 0 : 1);

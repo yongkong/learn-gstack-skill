@@ -3,6 +3,7 @@ import { Link, useRoute } from '../lib/router';
 import { CURRICULUM, PUBLISHED_COUNT } from '../content/curriculum';
 import { PRINCIPLES } from '../content/principles';
 import { PLAYBOOKS } from '../content/playbooks';
+import { VISUALS } from '../content/visuals';
 import { useProgress } from '../lib/progress';
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -24,6 +25,10 @@ export function Layout({ children }: { children: ReactNode }) {
             <span className="nav-count">
               {PUBLISHED_COUNT}/{CURRICULUM.length}
             </span>
+          </Link>
+          <Link to="/visuals" className="nav-link" ariaCurrent={route === '/visuals'}>
+            <span>图解</span>
+            <span className="nav-count">{VISUALS.length}</span>
           </Link>
           <Link to="/principles" className="nav-link" ariaCurrent={route === '/principles'}>
             <span>原则速查</span>

@@ -8,9 +8,9 @@
  */
 import matter from 'gray-matter';
 import MarkdownIt from 'markdown-it';
-import type { Block, Lesson, PhaseId } from '../src/content/types';
+import type { Block, Lesson, PageDoc, PhaseId } from '../src/content/types';
 
-export type { Block, Lesson };
+export type { Block, Lesson, PageDoc };
 
 const md = new MarkdownIt({ html: false, linkify: true, typographer: false });
 
@@ -149,6 +149,13 @@ function parseContainer(file: string, kind: string, arg: string, body: string[])
     case 'source':
       if (!arg) throw new LessonParseError(file, 'source 需要一个标题：:::source 标题');
       return parseSourceBody(file, arg, body);
+    case 'visual':
+      if (!arg) throw new LessonParseError(file, 'visual 需要一个图解 id：:::visual three-gates');
+      // 正文里不能塞内容：图解的形状由 src/content/visuals.ts 定义。
+      if (body.some((line) => line.trim())) {
+        throw new LessonParseError(file, `visual「${arg}」容器内应为空，图解内容写进 visuals.ts`);
+      }
+      return { kind: 'visual', id: arg };
     default:
       return null;
   }
@@ -239,6 +246,29 @@ export function parseLesson(source: string, basename: string, sourceFile = basen
     principles,
     blocks: parseBody(content, sourceFile),
     nextUp: data.nextUp === undefined ? undefined : String(data.nextUp),
+    sourceFile,
+  };
+}
+
+/**
+ * 普通页面：不是课程，不进路线图，所以不要求 num / minutes / phase / goal。
+ * 只要求一个标题，正文规则和课程完全一样（同样的容器、同样的 md）。
+ */
+export function parseDoc(source: string, basename: string, sourceFile = basename): PageDoc {
+  const { data, content } = matter(source);
+  const id = basename.replace(/\.md$/, '');
+
+  if (!data.title) throw new LessonParseError(sourceFile, 'frontmatter 缺 title');
+
+  if (/^#\s/m.test(content)) {
+    throw new LessonParseError(sourceFile, '正文不要写一级标题 #，页面标题由 frontmatter title 提供');
+  }
+
+  return {
+    id,
+    title: String(data.title),
+    subtitle: data.subtitle === undefined ? '' : String(data.subtitle),
+    blocks: parseBody(content, sourceFile),
     sourceFile,
   };
 }
