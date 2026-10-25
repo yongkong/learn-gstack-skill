@@ -46,7 +46,7 @@ export interface Principle {
 export const PRINCIPLES: Principle[] = [
   {
     id: 'laziness-protocol',
-    en: 'laziness protocol',
+    en: 'Laziness Protocol',
     zh: '懒惰协议',
     group: 'core',
     rule: 'Bias toward deletion and the smallest change that solves the problem.',
@@ -60,7 +60,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'foundational-thinking',
-    en: 'foundational thinking',
+    en: 'Foundational Thinking',
     zh: '基础性思考',
     group: 'core',
     rule: 'Apply before writing logic: choosing core types and data structures, sequencing scaffold-vs-feature work, asking what concurrent actors share.',
@@ -74,7 +74,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'redesign-from-first-principles',
-    en: 'redesign from first principles',
+    en: 'Redesign From First Principles',
     zh: '从第一性原理重设计',
     group: 'core',
     rule: 'Redesign as if the requirement had been a foundational assumption from day one, instead of bolting it on.',
@@ -88,7 +88,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'attack-the-premise',
-    en: 'attack the premise',
+    en: 'Attack the Premise',
     zh: '攻击前提',
     group: 'core',
     rule: 'Apply when two or more fixes that share one premise have failed the same gate. Write the premise down and test it directly before you write another fix that assumes it.',
@@ -102,7 +102,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'subtract-before-you-add',
-    en: 'subtract before you add',
+    en: 'Subtract before You Add',
     zh: '先减后加',
     group: 'core',
     rule: 'Remove dead weight, redundant validators, and stub references first, then build on the simpler base.',
@@ -116,7 +116,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'minimize-reader-load',
-    en: 'minimize reader load',
+    en: 'Minimize Reader Load',
     zh: '最小化读者负担',
     group: 'core',
     rule: 'Count layers between question and answer, and hidden state in the reader’s head; collapse one-caller wrappers and shrink mutable scope.',
@@ -130,7 +130,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'outcome-oriented-execution',
-    en: 'outcome oriented execution',
+    en: 'Outcome Oriented Execution',
     zh: '结果导向执行',
     group: 'core',
     rule: 'Apply during planned rewrites and migrations with explicit phase boundaries. Converge on the target architecture; don’t preserve smooth intermediate states with throwaway compatibility code.',
@@ -144,7 +144,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'experience-first',
-    en: 'experience first',
+    en: 'Experience First',
     zh: '体验优先',
     group: 'core',
     rule: 'Choose user delight over implementation convenience; ship fewer polished features over more rough ones.',
@@ -158,7 +158,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'exhaust-the-design-space',
-    en: 'exhaust the design space',
+    en: 'Exhaust the Design Space',
     zh: '穷尽设计空间',
     group: 'core',
     rule: 'Build 2-3 competing prototypes and compare side by side before committing.',
@@ -172,7 +172,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'build-the-lever',
-    en: 'build the lever',
+    en: 'Build the Lever',
     zh: '造杠杆',
     group: 'core',
     rule: 'Apply to any non-trivial work, not just bulk work: build the tool that does it or proves it (codemod, script, generator, or a skill your subagents follow) instead of working by hand. The tool is the artifact a reviewer can rerun.',
@@ -186,7 +186,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'model-the-domain',
-    en: 'model the domain',
+    en: 'Model the Domain',
     zh: '领域建模',
     group: 'architecture',
     rule: 'Encode the domain in a structure instead of scattered conditionals.',
@@ -200,7 +200,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'boundary-discipline',
-    en: 'boundary discipline',
+    en: 'Boundary Discipline',
     zh: '边界纪律',
     group: 'architecture',
     rule: 'Concentrate guards at system boundaries (CLI, config, network, external APIs); trust internal types and keep business logic in pure functions.',
@@ -214,7 +214,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'type-system-discipline',
-    en: 'type system discipline',
+    en: 'Type System Discipline',
     zh: '类型系统纪律',
     group: 'architecture',
     rule: 'Make illegal states unrepresentable, brand semantic primitives, parse external data at boundaries, exhaust variants, derive from authoritative schemas.',
@@ -228,7 +228,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'make-operations-idempotent',
-    en: 'make operations idempotent',
+    en: 'Make Operations Idempotent',
     zh: '操作幂等化',
     group: 'architecture',
     rule: 'Converge to the same end state regardless of partial prior runs.',
@@ -242,7 +242,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'migrate-callers-then-delete-legacy-apis',
-    en: 'migrate callers, then delete legacy APIs',
+    en: 'Migrate Callers, Then Delete Legacy APIs',
     zh: '先迁移调用者，再删旧 API',
     group: 'architecture',
     rule: 'Migrate callers and delete the old API in the same wave instead of preserving compatibility layers.',
@@ -256,7 +256,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'separate-before-serializing-shared-state',
-    en: 'separate before serializing shared state',
+    en: 'Separate before Serializing Shared State',
     zh: '共享状态先分离再序列化',
     group: 'architecture',
     rule: 'Eliminate the sharing first; serialize structurally only when one shared writer is a real invariant.',
@@ -270,7 +270,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'prove-it-works',
-    en: 'prove it works',
+    en: 'Prove It Works',
     zh: '证明它有效',
     group: 'verification',
     rule: 'Apply after completing a task, before declaring done. Verify against the real artifact (run the feature, read the actual value, inspect the diff), not a proxy, self-report, or "it compiles."',
@@ -284,7 +284,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'fix-root-causes',
-    en: 'fix root causes',
+    en: 'Fix Root Causes',
     zh: '修根因而非症状',
     group: 'verification',
     rule: 'Trace each symptom back to the first place the system went wrong and fix it there. A guard is a fix only when the state it handles is legitimate.',
@@ -298,7 +298,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'sequence-verifiable-units',
-    en: 'sequence verifiable units',
+    en: 'Sequence Verifiable Units',
     zh: '切成可验证单元',
     group: 'verification',
     rule: 'Apply to multi-step work and to how you stack commits and PRs. Break work into small units that each end in a verifiable state, check each before the next, and order delivery so the sequence proves itself to a reviewer.',
@@ -312,7 +312,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'test-behavior-not-implementation',
-    en: 'test behavior, not implementation',
+    en: 'Test Behavior, not Implementation',
     zh: '测行为不测实现',
     group: 'verification',
     rule: 'Apply when you write, change, or keep a test. Assert what the code’s users can observe, so the test fails when that behavior breaks and keeps passing when only the internals change.',
@@ -326,7 +326,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'explain-the-number',
-    en: 'explain the number',
+    en: 'Explain the Number',
     zh: '解释这个数字',
     group: 'verification',
     rule: 'Apply before you trust, report, or act on a number you measured: a speedup, a regression, a throughput, a latency, or an eval result. Find what limits it, and rule out that it measured something other than the work you think.',
@@ -340,7 +340,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'guard-the-context-window',
-    en: 'guard the context window',
+    en: 'Guard the Context Window',
     zh: '守住上下文窗口',
     group: 'delegation',
     rule: 'Route bulk to subagents; keep summaries in the main thread, not raw payloads.',
@@ -354,7 +354,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'never-block-on-the-human',
-    en: 'never block on the human',
+    en: 'Never Block on the Human',
     zh: '不要阻塞在人身上',
     group: 'delegation',
     rule: 'Proceed, present the result, let the human course-correct after the fact; reserve confirmation for irreversible actions.',
@@ -368,7 +368,7 @@ export const PRINCIPLES: Principle[] = [
   },
   {
     id: 'encode-lessons-in-structure',
-    en: 'encode lessons in structure',
+    en: 'Encode Lessons in Structure',
     zh: '把经验编码进结构',
     group: 'meta',
     rule: 'Encode the rule as a lint, metadata flag, runtime check, or script instead of more text.',

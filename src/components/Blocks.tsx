@@ -15,26 +15,10 @@ export function Blocks({ blocks, scope }: { blocks: Block[]; scope?: string }) {
 
 function BlockView({ block, scope }: { block: Block; scope?: string }) {
   switch (block.kind) {
-    case 'lead':
-      return <p className="lead">{block.text}</p>;
-    case 'p':
-      return <p>{block.text}</p>;
-    case 'h':
-      return <h2>{block.text}</h2>;
-    case 'list':
-      return block.ordered ? (
-        <ol>
-          {block.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ol>
-      ) : (
-        <ul>
-          {block.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      );
+    // md 正文：标题、段落、列表、行内格式都由 markdown-it 处理好了。
+    // display: contents 让这层 div 不参与布局，避免打断 .prose 的间距规则。
+    case 'html':
+      return <div className="md-block" dangerouslySetInnerHTML={{ __html: block.html }} />;
     case 'callout':
       return (
         <div className={`callout ${block.tone}`}>
@@ -48,13 +32,6 @@ function BlockView({ block, scope }: { block: Block; scope?: string }) {
           {block.label && <div className="code-label">{block.label}</div>}
           <pre>{block.text}</pre>
         </div>
-      );
-    case 'quote':
-      return (
-        <blockquote>
-          “{block.text}”
-          {block.source && <cite>{block.source}</cite>}
-        </blockquote>
       );
     case 'principles':
       return (

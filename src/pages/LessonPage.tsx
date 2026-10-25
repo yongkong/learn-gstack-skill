@@ -34,7 +34,7 @@ export function LessonPage({ id }: { id: string }) {
     <div className="page">
       <header className="lesson-head">
         <p className="eyebrow">
-          Lesson {String(meta.no).padStart(2, '0')} · {meta.minutes} 分钟
+          {`Lesson ${String(meta.no).padStart(2, '0')}${meta.titleEn ? ` · ${meta.titleEn}` : ''} · ${meta.minutes} 分钟`}
         </p>
         <h1>{meta.title}</h1>
         <p className="lesson-sub">{meta.subtitle}</p>
@@ -44,6 +44,8 @@ export function LessonPage({ id }: { id: string }) {
         <span className="goal-label">学完能做到</span>
         {lesson.goal}
       </div>
+
+      {lesson.lede && <p className="lead">{lesson.lede}</p>}
 
       <Blocks blocks={lesson.blocks} scope={lesson.id} />
 

@@ -26,6 +26,7 @@ export function lessonStats() {
     return {
       id: lesson.id,
       title: meta?.title ?? lesson.id,
+      titleEn: lesson.titleEn ?? '',
       minutes: meta?.minutes ?? 0,
       quizzes: lesson.blocks.filter((block) => block.kind === 'quiz').length,
       principleIds: lesson.blocks.flatMap((block) => (block.kind === 'principles' ? block.ids : [])),

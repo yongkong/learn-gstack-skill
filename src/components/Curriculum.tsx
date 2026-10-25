@@ -27,6 +27,7 @@ function Row({ item }: { item: CurriculumItem }) {
       <span className="lesson-card-no">{String(item.no).padStart(2, '0')}</span>
       <span>
         <span className="lesson-card-title">{item.title}</span>
+        {item.titleEn && <span className="lesson-card-en">{item.titleEn}</span>}
         <span className="lesson-card-sub">{item.subtitle}</span>
       </span>
       <span className={`lesson-card-state ${done ? 'done' : ''}`}>

@@ -5,8 +5,9 @@ export function PrincipleCard({ principle }: { principle: Principle }) {
   return (
     <article className="principle" id={`principle-${principle.id}`}>
       <div className="principle-top">
-        <span className="principle-zh">{principle.zh}</span>
+        {/* 英文是正式名，中文是解释——顺序不反过来，读者才能对上上游原文 */}
         <span className="principle-en">{principle.en}</span>
+        <span className="principle-zh">{principle.zh}</span>
         <span className="tag">{group.zh}</span>
       </div>
       <p className="principle-rule">“{principle.rule}”</p>

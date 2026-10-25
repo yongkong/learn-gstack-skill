@@ -29,6 +29,9 @@ check('侧栏复习提示', home, '复习法');
 const stats = lessonStats();
 assert('已发布课程数 = 16', stats.length === 16, String(stats.length));
 
+const missingEn = stats.filter((item) => !item.titleEn.trim()).map((item) => item.id);
+assert('每节课都有英文正式名', missingEn.length === 0, missingEn.join(',') || `${stats.length}/${stats.length}`);
+
 for (const item of stats) {
   const page = clean(renderLesson(item.id));
   assert(`课 ${item.id} 标题`, page.includes(item.title), item.title);
@@ -42,6 +45,14 @@ for (const item of stats) {
   for (const name of item.playbookNames) {
     assert(`课 ${item.id} playbook 渲染`, page.includes(name), name);
   }
+  // 双语：英文正式名必须真的渲染出来，而不是只躺在 frontmatter 里
+  check(`课 ${item.id} 英文正式名`, page, item.titleEn);
+  // md 解析的正确性：容器标记和 ## 记号不该原样漏进 DOM
+  assert(
+    `课 ${item.id} md 已解析`,
+    !page.includes(':::') && !page.includes('## '),
+    page.includes(':::') ? '残留 ::: 容器' : page.includes('## ') ? '残留 ## 记号' : '无残留',
+  );
 }
 
 const cov = coverage();
