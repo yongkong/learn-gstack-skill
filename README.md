@@ -2,9 +2,9 @@
 
 用来长期复习 pstack（[cursor/plugins/pstack](https://github.com/cursor/plugins/tree/main/pstack)）的 24 条原则和 23 个 playbook。
 
-**在线访问 → [pstack-study.app.workbuddy.host](https://pstack-study.app.workbuddy.host/?sharecode=BUJJTI3CNJ)**
+**在线访问 → [yongkong.github.io/learn-gstack-skill](https://yongkong.github.io/learn-gstack-skill/)**
 
-> 链接要带 `?sharecode=BUJJTI3CNJ`，只打开域名会看到「链接不完整」。
+备用地址：[pstack-study.app.workbuddy.host/?sharecode=BUJJTI3CNJ](https://pstack-study.app.workbuddy.host/?sharecode=BUJJTI3CNJ)（这个域有访问保护，必须带 `?sharecode`，只开域名会看到「链接不完整」）
 
 16 课 / 5 个阶段 / 48 道检索题，覆盖全部 24 条原则，不漏不重。课程是**纯 Markdown 文件**（`content/lessons/*.md`），站点是它们的渲染器。改内容不用碰任何 TS/JSX——md 既是网站的内容源，也是直接在 GitHub 上可读的讲义。
 
@@ -51,13 +51,25 @@ npm run smoke    # 逐课 SSR 渲染 + 覆盖一致性 + 双语完整性，共 1
 
 ## 发布
 
-线上跑的是 `dist/` 的静态产物，仓库里没有部署配置，发布是手动触发的：
+线上有两个地址，跑的是同一份 `dist/`。产物用**相对路径**（`base: './'`），所以同一份文件既能挂在域名根路径，也能挂在 Pages 的子路径 `/learn-gstack-skill/` 下。
+
+**GitHub Pages（主地址，无参数）**
 
 ```bash
-npm run build    # 产出 dist/
+npm run deploy:pages    # 构建 → 推到 gh-pages 分支
 ```
 
-然后重新上传 `dist/` 覆盖同一个地址——**链接不变**，不会每次发布换新域名。发布动作不会自动发生，改完代码别人看到的页面不会自己变。
+产物内容没变时会自动跳过，不会因重复执行产生只改时间戳的提交。首推后 Pages 约 30–60 秒生效。
+
+**WorkBuddy 托管（备用地址）**
+
+```bash
+npm run build           # 产出 dist/
+```
+
+然后在对话里说「发布」，由发布能力上传 `dist/` 覆盖同一地址。这个域名带 sharecode 访问保护，链接里必须保留 `?sharecode=...`。
+
+两边都**不会自动发布**：改完代码别人看到的页面不会自己变，这是有意的——避免你还在本机编辑时线上已经变了。
 
 ## 课程 md 格式
 
